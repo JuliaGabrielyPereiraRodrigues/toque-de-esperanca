@@ -26,12 +26,10 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Salvar token e nome do usuário
         localStorage.setItem("token", data.token);
         localStorage.setItem("nomeUsuario", data.user.name);
         localStorage.setItem("emailUsuario", data.user.email);
         
-        // Forçar atualização da página para refletir o login no header
         window.location.href = "/";
       } else {
         setErro(data.message || "Erro ao fazer login");

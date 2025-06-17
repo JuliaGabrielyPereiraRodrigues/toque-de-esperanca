@@ -11,7 +11,6 @@ const Home = () => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        // Não define erro, só não tenta carregar perfil
         return;
       }
 
@@ -42,9 +41,7 @@ const Home = () => {
     <section>
       <div className="user-info">
         {erro && <p style={{ color: "red" }}>{erro}</p>}
-        {/* Se tem token mas ainda não carregou user, mostra 'Carregando perfil...' */}
         {!erro && !user && localStorage.getItem("token") && <p>Carregando perfil...</p>}
-        {/* Se não tem token, não mostra nada aqui */}
       </div>
 
       <div className="container-cards">
