@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Item from "../components/Item";
 import "./Home.css";
+import "./CriarCampanha";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -41,7 +42,9 @@ const Home = () => {
     <section>
       <div className="user-info">
         {erro && <p style={{ color: "red" }}>{erro}</p>}
-        {!erro && !user && localStorage.getItem("token") && <p>Carregando perfil...</p>}
+        {!erro && !user && localStorage.getItem("token") && (
+          <p>Carregando perfil...</p>
+        )}
       </div>
 
       <div className="container-cards">

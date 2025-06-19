@@ -12,7 +12,7 @@ const Header = () => {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Buscar Campanhas", href: "" },
-    { label: "Criar Campanha", href: "" },
+    { label: "Criar Campanha", href: "/criar-campanha" },
     { label: "Meu Painel", href: "" },
     { label: "Sobre o Projeto", href: "" },
   ];
@@ -44,13 +44,18 @@ const Header = () => {
           <ul className="nav-lista">
             {navLinks.map((link) => (
               <li key={link.label} className="nav-item">
-                <Link
-                  to={link.href}
-                  className="nav-link"
-                  onClick={() => setMenuAberto(false)}
-                >
-                  {link.label}
-                </Link>
+                {/* Só renderiza Link se houver href */}
+                {link.href ? (
+                  <Link
+                    to={link.href}
+                    className="nav-link"
+                    onClick={() => setMenuAberto(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <span className="nav-link">{link.label}</span>
+                )}
               </li>
             ))}
           </ul>

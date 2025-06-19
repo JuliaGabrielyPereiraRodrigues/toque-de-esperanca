@@ -2,7 +2,7 @@ import { Router } from "express";
 import User from "./model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { authMiddleware } from "../../middleware/auth.js"
+import { authMiddleware } from "../../middleware/auth.js";
 
 const router = Router();
 
@@ -18,13 +18,22 @@ router.get("/perfil", authMiddleware, async (req, res) => {
       user,
     });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao carregar perfil.", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao carregar perfil.", error: error.message });
   }
 });
- 
+
 router.get("/users", async (req, res) => {
   try {
-    const { page = 1, limit = 10, name, email, sortBy = "name", sortOrder = "asc" } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      name,
+      email,
+      sortBy = "name",
+      sortOrder = "asc",
+    } = req.query;
 
     const filter = {};
     if (name) filter.name = new RegExp(name, "i");
@@ -46,7 +55,9 @@ router.get("/users", async (req, res) => {
       users,
     });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar usuários", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao buscar usuários", error: error.message });
   }
 });
 
@@ -55,11 +66,15 @@ router.post("/users", async (req, res) => {
     const { name, email, password, accountType } = req.body;
 
     if (!name || !email || !password || !accountType) {
-      return res.status(400).json({ message: "Todos os campos são obrigatórios." });
+      return res
+        .status(400)
+        .json({ message: "Todos os campos são obrigatórios." });
     }
 
     if (!["ONG", "Doador"].includes(accountType)) {
-      return res.status(400).json({ message: "Tipo de conta inválido. Escolha ONG ou Doador." });
+      return res
+        .status(400)
+        .json({ message: "Tipo de conta inválido. Escolha ONG ou Doador." });
     }
 
     const userExists = await User.findOne({ email });
@@ -69,25 +84,33 @@ router.post("/users", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ name, email, password: hashedPassword, accountType });
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      accountType,
+    });
     await newUser.save();
 
     res.status(201).json({
       message: "Usuário criado com sucesso.",
-      user: { name, email, accountType }
+      user: { name, email, accountType },
     });
   } catch (error) {
-    res.status(500).json({ message: "Erro ao criar usuário", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao criar usuário", error: error.message });
   }
 });
-
 
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email e senha são obrigatórios." });
+      return res
+        .status(400)
+        .json({ message: "Email e senha são obrigatórios." });
     }
 
     const user = await User.findOne({ email });
@@ -102,14 +125,14 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET, 
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
     res.json({
       message: "Login efetuado com sucesso.",
       token,
-      user: { name: user.name, email: user.email }
+      user: { name: user.name, email: user.email },
     });
   } catch (error) {
     res.status(500).json({ message: "Erro no login", error: error.message });
