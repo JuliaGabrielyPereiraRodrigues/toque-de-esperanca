@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState /*useEffect */ } from "react";
 //import { useNavigate } from "react-router-dom";
 import "./CriarCampanha.css";
 
@@ -10,7 +10,6 @@ const tiposCadastro = [
 const tiposCampanha = ["Alimento", "Roupa", "Brinquedo", "Dinheiro", "Outro"];
 
 const CriarCampanha = () => {
-  // const navigate = useNavigate();
   const [form, setForm] = useState({
     tipoCadastro: "",
     titulo: "",
@@ -22,18 +21,14 @@ const CriarCampanha = () => {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
-  // Verifica se usuário está logado
-  /*const token = localStorage.getItem("token");
-  if (!token) {
-    return (
-      <div style={{ textAlign: "center", marginTop: 40 }}>
-        <h2>Nova Campanha / Doação</h2>
-        <p style={{ color: "red" }}>
-          Você precisa estar logado para criar uma campanha.
-        </p>
-      </div>
-    );
-  }*/
+  /*const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/acesso-negado");
+    }
+  }, [navigate]);*/
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;

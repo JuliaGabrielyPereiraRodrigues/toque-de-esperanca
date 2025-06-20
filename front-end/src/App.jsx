@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import CriarCampanha from "./pages/CriarCampanha";
+import AcessoNegado from "./pages/AcessoNegado";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/criar-campanha" element={<CriarCampanha />} />
+        <Route path="/acesso-negado" element={<AcessoNegado />} />
       </Routes>
     </BrowserRouter>
   );
