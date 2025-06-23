@@ -14,7 +14,7 @@ const Header = () => {
     { label: "Buscar Campanhas", href: "" },
     { label: "Criar Campanha", href: "/criar-campanha" },
     { label: "Meu Painel", href: "" },
-    { label: "Sobre o Projeto", href: "" },
+    { label: "Sobre o Projeto", href: "/sobre" },
   ];
 
   const handleLogout = () => {
