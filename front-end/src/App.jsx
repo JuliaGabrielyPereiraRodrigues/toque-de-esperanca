@@ -7,12 +7,12 @@ import Registro from "./pages/Registro";
 import CriarCampanha from "./pages/CriarCampanha";
 import AcessoNegado from "./pages/AcessoNegado";
 import Sobre from "./pages/Sobre";
+import DetalhesCampanha from "./pages/DetalhesCampanha"; // <-- aqui
 
 function App() {
   return (
     <BrowserRouter>
       <Header />
-
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -20,6 +20,7 @@ function App() {
         <Route path="/criar-campanha" element={<CriarCampanha />} />
         <Route path="/acesso-negado" element={<AcessoNegado />} />
         <Route path="/sobre" element={<Sobre />} />
+        <Route path="/campanha/:id" element={<DetalhesCampanha />} /> {/* <-- nova rota */}
       </Routes>
     </BrowserRouter>
   );

@@ -1,61 +1,49 @@
 import React, { useEffect, useState } from "react";
-import Item from "../components/Item";
+import { Link } from "react-router-dom";
 import "./Home.css";
-import "./CriarCampanha";
 
 const Home = () => {
-  const [user, setUser] = useState(null);
+  const [campanhas, setCampanhas] = useState([]);
   const [erro, setErro] = useState("");
 
   useEffect(() => {
-    const fetchPerfil = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        return;
-      }
-
+    const fetchCampanhas = async () => {
       try {
-        const response = await fetch("http://localhost:3000/perfil", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          setErro(data.message || "Erro ao carregar perfil");
-          return;
-        }
-
+        const response = await fetch("http://localhost:3000/campanhas");
+        if (!response.ok) throw new Error("Erro ao buscar campanhas");
         const data = await response.json();
-        setUser(data.user);
+        setCampanhas(data.reverse()); 
       } catch {
-        setErro("Erro na comunicação com o servidor.");
+        setErro("Erro ao carregar campanhas.");
       }
     };
 
-    fetchPerfil();
+    fetchCampanhas();
   }, []);
 
   return (
     <section>
-      <div className="user-info">
-        {erro && <p style={{ color: "red" }}>{erro}</p>}
-        {!erro && !user && localStorage.getItem("token") && (
-          <p>Carregando perfil...</p>
-        )}
-      </div>
-
       <div className="container-cards">
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        <Item />
+        {erro && <p style={{ color: "red" }}>{erro}</p>}
+        {campanhas.length === 0 && !erro && <p>Sem campanhas ainda.</p>}
+
+        {campanhas.map((campanha) => (
+          <div key={campanha._id} className="card-campanha">
+            {campanha.status === "concluida" && (
+              <span className="selo-concluida">✅ Concluída</span>
+            )}
+            <img
+              src={`http://localhost:3000/uploads/${campanha.imagem}`}
+              alt={campanha.titulo}
+              className="imagem-campanha"
+            />
+            <h3>{campanha.titulo}</h3>
+            <p>{campanha.descricao.slice(0, 100)}...</p>
+            <Link to={`/campanha/${campanha._id}`} className="btn-ver-detalhes">
+              Ver detalhes
+            </Link>
+          </div>
+        ))}
       </div>
     </section>
   );

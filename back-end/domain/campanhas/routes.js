@@ -41,4 +41,24 @@ router.get("/", async (req, res) => {
   res.json(campanhas);
 });
 
+router.patch("/:id/concluir", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const campanha = await Campanha.findByIdAndUpdate(
+      id,
+      { status: "concluida" },
+      { new: true }
+    );
+
+    if (!campanha) {
+      return res.status(404).json({ erro: "Campanha não encontrada." });
+    }
+
+    res.json({ mensagem: "Campanha marcada como concluída.", campanha });
+  } catch (err) {
+    res.status(500).json({ erro: "Erro ao atualizar campanha." });
+  }
+});
+
+
 export default router;

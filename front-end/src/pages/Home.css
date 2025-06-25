@@ -1,9 +1,66 @@
-.container-cards {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 16px;
-
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
+.card-campanha {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+  position: relative;
 }
+
+.card-campanha:hover {
+  transform: translateY(-4px);
+}
+
+.card-campanha h3 {
+  margin: 12px 0 8px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.card-campanha p {
+  font-size: 0.9rem;
+  color: #666;
+  flex-grow: 1;
+}
+
+.imagem-campanha {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.btn-ver-detalhes {
+  margin-top: 12px;
+  background: #8e4db3;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.btn-ver-detalhes:hover {
+  background: #69308a;
+}
+
+.selo-concluida {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: #4caf50;
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
