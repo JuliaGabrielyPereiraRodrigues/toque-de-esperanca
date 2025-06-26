@@ -11,7 +11,7 @@ const Header = () => {
 
   const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Buscar Campanhas", href: "" },
+    { label: "Buscar Campanhas", href: "/buscar-campanhas" },
     { label: "Criar Campanha", href: "/criar-campanha" },
     { label: "Meu Painel", href: "" },
     { label: "Sobre o Projeto", href: "/sobre" },
