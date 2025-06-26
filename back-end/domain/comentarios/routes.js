@@ -1,5 +1,5 @@
 import { Router } from "express";
-import Comentario from "./comentario.js";
+import Comentario from "./model.js";
 
 const router = Router();
 
