@@ -7,7 +7,7 @@ import connectDb from "./config/db.js";
 // Rotas
 import UserRoutes from "./domain/users/routes.js";
 import campanhasRoutes from "./domain/campanhas/routes.js";
-import comentariosRoutes from "./domain/comentariosRoutes.js"; // ✅ nova rota de comentários
+import comentariosRoutes from "./domain/comentarios/routes.js"
 
 const app = express();
 const { PORT } = process.env;
