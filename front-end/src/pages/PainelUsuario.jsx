@@ -8,21 +8,30 @@ const PainelUsuario = () => {
   const [notificacoesRecentes, setNotificacoesRecentes] = useState([]);
   const [mostrarCampanhas, setMostrarCampanhas] = useState(false);
   const [nomesUsuarios, setNomesUsuarios] = useState({});
+  const [carregando, setCarregando] = useState(true);
 
   const emailUsuario = localStorage.getItem("emailUsuario");
   const nomeUsuario = localStorage.getItem("nomeUsuario");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/campanhas")
-      .then((res) => res.json())
-      .then((data) => {
-        const minhas = data.filter((c) => c.criador === emailUsuario);
+    const carregarDados = async () => {
+      try {
+        const resCampanhas = await fetch("http://localhost:3000/campanhas");
+        const dataCampanhas = await resCampanhas.json();
+        const minhas = dataCampanhas.filter((c) => c.criador === emailUsuario);
         setCampanhas(minhas);
-      });
 
-    carregarConversas();
-  }, []);
+        await carregarConversas();
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    carregarDados();
+  }, [emailUsuario]);
 
   const carregarConversas = async () => {
     try {
@@ -34,7 +43,11 @@ const PainelUsuario = () => {
       const dataNotificacoes = await resNotificacoes.json();
       setNotificacoesRecentes(dataNotificacoes);
 
-      const emails = [...new Set([...dataConversas, ...dataNotificacoes].map((m) => m.remetente))];
+      const emails = [...new Set([
+        ...dataConversas.map((c) => c.remetente),
+        ...dataNotificacoes.map((n) => n.remetente)
+      ])].filter(email => email !== emailUsuario);
+
       const nomes = {};
       await Promise.all(
         emails.map(async (email) => {
@@ -73,14 +86,25 @@ const PainelUsuario = () => {
       });
 
       setNotificacoesRecentes((prev) =>
-        prev.filter((m) => m._idMensagem !== msg._idMensagem)
+        prev.filter((m) => 
+          !(m.campanhaId === msg.campanhaId && m.remetente === msg.remetente)
+        )
       );
 
       navigate(`/chat?campanha=${msg.campanhaId}&com=${msg.remetente}`);
     } catch (error) {
       console.error("Erro ao marcar mensagens como lidas:", error);
+      navigate(`/chat?campanha=${msg.campanhaId}&com=${msg.remetente}`);
     }
   };
+
+  const abrirConversa = (conversa) => {
+    navigate(`/chat?campanha=${conversa.campanhaId}&com=${conversa.remetente}`);
+  };
+
+  if (carregando) {
+    return <div className="painel-usuario">Carregando...</div>;
+  }
 
   return (
     <div className="painel-usuario">
@@ -90,7 +114,12 @@ const PainelUsuario = () => {
             <h2>Bem-vindo, {nomeUsuario}!</h2>
             <p>Email: {emailUsuario}</p>
             <p>Campanhas criadas: {campanhas.length}</p>
-            <p>Mensagens recebidas: {conversas.length}</p>
+            <p>Conversas ativas: {conversas.length}</p>
+            {notificacoesRecentes.length > 0 && (
+              <p style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                🔔 {notificacoesRecentes.length} nova(s) mensagem(ns)
+              </p>
+            )}
           </div>
           <button className="btn-logout" onClick={handleLogout} title="Sair da conta">
             Sair
@@ -102,7 +131,7 @@ const PainelUsuario = () => {
         <section className="notificacoes">
           <h3>🔔 Novas mensagens</h3>
           {notificacoesRecentes.map((msg, i) => (
-            <div key={i} className="card-notificacao">
+            <div key={`${msg.campanhaId}-${msg.remetente}`} className="card-notificacao">
               <p>
                 <strong>{nomesUsuarios[msg.remetente] || msg.remetente}</strong>: {msg.conteudo}
               </p>
@@ -138,18 +167,20 @@ const PainelUsuario = () => {
       <section className="historico-mensagens">
         <h3>Histórico de Conversas</h3>
         {conversas.length === 0 ? (
-          <p>Você ainda não tem mensagens.</p>
+          <p>Você ainda não tem conversas.</p>
         ) : (
-          [...new Map(
-            conversas
-              .filter((msg) => msg.remetente !== emailUsuario)
-              .map((msg) => [`${msg.remetente}-${msg.campanhaId}`, msg])
-          ).values()].map((msg, i) => (
-            <div key={i} className="card">
-              <p><strong>Usuário:</strong> {nomesUsuarios[msg.remetente] || msg.remetente}</p>
-              <button onClick={() => responderMensagem(msg)}>
-                Ver conversa
-              </button>
+          conversas.map((conversa, i) => (
+            <div key={`${conversa.campanhaId}-${conversa.remetente}`} className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p><strong>Conversa com:</strong> {nomesUsuarios[conversa.remetente] || conversa.remetente}</p>
+                  <p><small>Última mensagem: {conversa.ultimaMensagem}</small></p>
+                  <p><small>{new Date(conversa.ultimaData).toLocaleString()}</small></p>
+                </div>
+                <button onClick={() => abrirConversa(conversa)}>
+                  Abrir Chat
+                </button>
+              </div>
             </div>
           ))
         )}
