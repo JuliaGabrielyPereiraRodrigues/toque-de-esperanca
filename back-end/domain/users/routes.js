@@ -6,6 +6,7 @@ import { authMiddleware } from "../../middleware/auth.js";
 
 const router = Router();
 
+// Rota protegida para perfil
 router.get("/perfil", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
@@ -18,12 +19,11 @@ router.get("/perfil", authMiddleware, async (req, res) => {
       user,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Erro ao carregar perfil.", error: error.message });
+    res.status(500).json({ message: "Erro ao carregar perfil.", error: error.message });
   }
 });
 
+// Rota pública para listar usuários com filtro
 router.get("/users", async (req, res) => {
   try {
     const {
@@ -55,26 +55,17 @@ router.get("/users", async (req, res) => {
       users,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Erro ao buscar usuários", error: error.message });
+    res.status(500).json({ message: "Erro ao buscar usuários", error: error.message });
   }
 });
 
+// Rota de cadastro
 router.post("/users", async (req, res) => {
   try {
-    const { name, email, password, accountType } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !accountType) {
-      return res
-        .status(400)
-        .json({ message: "Todos os campos são obrigatórios." });
-    }
-
-    if (!["ONG", "Doador"].includes(accountType)) {
-      return res
-        .status(400)
-        .json({ message: "Tipo de conta inválido. Escolha ONG ou Doador." });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Todos os campos são obrigatórios." });
     }
 
     const userExists = await User.findOne({ email });
@@ -88,29 +79,26 @@ router.post("/users", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      accountType,
     });
+
     await newUser.save();
 
     res.status(201).json({
       message: "Usuário criado com sucesso.",
-      user: { name, email, accountType },
+      user: { name, email },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Erro ao criar usuário", error: error.message });
+    res.status(500).json({ message: "Erro ao criar usuário", error: error.message });
   }
 });
 
+// Rota de login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email e senha são obrigatórios." });
+      return res.status(400).json({ message: "Email e senha são obrigatórios." });
     }
 
     const user = await User.findOne({ email });
@@ -132,7 +120,10 @@ router.post("/login", async (req, res) => {
     res.json({
       message: "Login efetuado com sucesso.",
       token,
-      user: { name: user.name, email: user.email },
+      user: {
+        name: user.name,
+        email: user.email,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: "Erro no login", error: error.message });

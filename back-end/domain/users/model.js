@@ -8,11 +8,6 @@ const userSchema = new Schema({
     required: true,
   },
   password: { type: String, required: true },
-  accountType: {
-    type: String,
-    enum: ["ONG", "Doador"],
-    required: true,
-  },
 });
 
 const User = model("User", userSchema);
