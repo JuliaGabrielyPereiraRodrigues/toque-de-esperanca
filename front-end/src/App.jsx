@@ -8,7 +8,9 @@ import BuscarCampanha from "./pages/BuscarCampanha";
 import CriarCampanha from "./pages/CriarCampanha";
 import AcessoNegado from "./pages/AcessoNegado";
 import Sobre from "./pages/Sobre";
-import DetalhesCampanha from "./pages/DetalhesCampanha"; // <-- aqui
+import DetalhesCampanha from "./pages/DetalhesCampanha";
+//import Chat from "./pages/Chat";
+import RotaPrivada from "./components/RotaPrivada";
 
 function App() {
   return (
@@ -19,10 +21,25 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/buscar-campanhas" element={<BuscarCampanha />} />
-        <Route path="/criar-campanha" element={<CriarCampanha />} />
+        <Route
+          path="/criar-campanha"
+          element={
+            <RotaPrivada>
+              <CriarCampanha />
+            </RotaPrivada>
+          }
+        />
         <Route path="/acesso-negado" element={<AcessoNegado />} />
         <Route path="/sobre" element={<Sobre />} />
-        <Route path="/campanha/:id" element={<DetalhesCampanha />} /> {/* <-- nova rota */}
+        <Route path="/campanha/:id" element={<DetalhesCampanha />} />
+        {/* <Route
+          // path="/chat/:campanhaId"
+          // element={
+          //   <RotaPrivada>
+          //     <Chat />
+          //   </RotaPrivada>
+          }
+        /> */}
       </Routes>
     </BrowserRouter>
   );

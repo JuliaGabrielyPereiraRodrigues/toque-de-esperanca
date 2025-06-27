@@ -21,6 +21,7 @@ const Header = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("nomeUsuario");
     localStorage.removeItem("emailUsuario");
+    localStorage.removeItem("usuarioLogado"); 
     navigate("/login");
   };
 

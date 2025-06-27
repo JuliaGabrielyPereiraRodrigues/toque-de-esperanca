@@ -1,8 +1,7 @@
-import React, { useState /*useEffect */ } from "react";
-//import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import "./CriarCampanha.css";
 
-const tiposCadastro = [
+const tiposParticipacao = [
   { label: "Preciso de ajuda", value: "pedido" },
   { label: "Quero doar", value: "doacao" },
 ];
@@ -17,18 +16,15 @@ const CriarCampanha = () => {
     local: "",
     tipo: "",
     imagem: "",
+    meta: "",
+    dataInicio: "",
+    dataFim: "",
+    contato: "",
+    link: "",
   });
+
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
-
-  /*const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/acesso-negado");
-    }
-  }, [navigate]);*/
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -44,34 +40,29 @@ const CriarCampanha = () => {
     setErro("");
     setSucesso("");
 
-    if (
-      !form.tipoCadastro ||
-      !form.titulo ||
-      !form.descricao ||
-      !form.local ||
-      !form.tipo ||
-      !form.imagem
-    ) {
-      setErro("Preencha todos os campos obrigatórios, incluindo a imagem.");
+    const { tipoCadastro, titulo, descricao, local, tipo, imagem } = form;
+    const criador = localStorage.getItem("emailUsuario"); 
+
+    if (!tipoCadastro || !titulo || !descricao || !local || !tipo || !imagem || !criador) {
+      setErro("Preencha todos os campos obrigatórios.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("tipoCadastro", form.tipoCadastro);
-    formData.append("titulo", form.titulo);
-    formData.append("descricao", form.descricao);
-    formData.append("local", form.local);
-    formData.append("tipo", form.tipo);
-    formData.append("imagem", form.imagem);
+    Object.entries(form).forEach(([key, value]) => {
+      if (value) formData.append(key, value);
+    });
+
+    formData.append("criador", criador); 
 
     try {
       const response = await fetch("http://localhost:3000/campanhas", {
         method: "POST",
         body: formData,
       });
-      if (!response.ok) {
-        throw new Error("Erro ao criar campanha.");
-      }
+
+      if (!response.ok) throw new Error("Erro ao criar campanha.");
+
       setSucesso("Campanha criada com sucesso!");
       setForm({
         tipoCadastro: "",
@@ -80,69 +71,54 @@ const CriarCampanha = () => {
         local: "",
         tipo: "",
         imagem: "",
+        meta: "",
+        dataInicio: "",
+        dataFim: "",
+        contato: "",
+        link: "",
       });
-    } catch {
+    } catch (err) {
       setErro("Erro ao criar campanha.");
     }
   };
+
+  const tiposComMeta = ["Alimento", "Dinheiro", "Outro"];
+  const mostrarCampoMeta = tiposComMeta.includes(form.tipo);
 
   return (
     <div className="form-campanha">
       <h2>Nova Campanha / Doação</h2>
       <form onSubmit={handleSubmit}>
         <label>
-          Tipo de cadastro*:
-          <select
-            name="tipoCadastro"
-            value={form.tipoCadastro}
-            onChange={handleChange}
-            required
-          >
+          Como você quer participar?*
+          <select name="tipoCadastro" value={form.tipoCadastro} onChange={handleChange} required>
             <option value="">Selecione</option>
-            {tiposCadastro.map((t) => (
+            {tiposParticipacao.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
           </select>
         </label>
+
         <label>
           Título*:
-          <input
-            type="text"
-            name="titulo"
-            value={form.titulo}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" name="titulo" value={form.titulo} onChange={handleChange} required />
         </label>
+
         <label>
           Descrição*:
-          <textarea
-            name="descricao"
-            value={form.descricao}
-            onChange={handleChange}
-            required
-          />
+          <textarea name="descricao" value={form.descricao} onChange={handleChange} required />
         </label>
+
         <label>
           Local*:
-          <input
-            type="text"
-            name="local"
-            value={form.local}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" name="local" value={form.local} onChange={handleChange} required />
         </label>
+
         <label>
           Tipo*:
-          <select
-            name="tipo"
-            value={form.tipo}
-            onChange={handleChange}
-            required
-          >
+          <select name="tipo" value={form.tipo} onChange={handleChange} required>
             <option value="">Selecione</option>
             {tiposCampanha.map((t) => (
               <option key={t} value={t}>
@@ -151,6 +127,52 @@ const CriarCampanha = () => {
             ))}
           </select>
         </label>
+
+        {mostrarCampoMeta && (
+          <label>
+            Meta:
+            <input
+              type="text"
+              name="meta"
+              placeholder="Ex: 100 cestas básicas"
+              value={form.meta}
+              onChange={handleChange}
+            />
+          </label>
+        )}
+
+        <label>
+          Data de Início:
+          <input type="date" name="dataInicio" value={form.dataInicio} onChange={handleChange} />
+        </label>
+
+        <label>
+          Data de Término:
+          <input type="date" name="dataFim" value={form.dataFim} onChange={handleChange} />
+        </label>
+
+        <label>
+          Contato:
+          <input
+            type="text"
+            name="contato"
+            placeholder="Telefone, WhatsApp, etc."
+            value={form.contato}
+            onChange={handleChange}
+          />
+        </label>
+
+        <label>
+          Link para mais informações:
+          <input
+            type="url"
+            name="link"
+            placeholder="https://exemplo.com"
+            value={form.link}
+            onChange={handleChange}
+          />
+        </label>
+
         <label>
           Imagem*:
           <input
@@ -161,8 +183,10 @@ const CriarCampanha = () => {
             required
           />
         </label>
+
         {erro && <div className="erro">{erro}</div>}
         {sucesso && <div className="sucesso">{sucesso}</div>}
+
         <button type="submit" className="btn-criar-campanha">
           Criar Campanha
         </button>

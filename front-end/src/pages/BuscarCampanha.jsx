@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './BuscarCampanha.css';
-import Item from '../components/Item'; // Assuming Item component is in ../components
 
 const tiposCadastro = [
   { label: 'Preciso de ajuda', value: 'pedido' },
@@ -16,38 +16,31 @@ const BuscarCampanha = () => {
   const [campanhas, setCampanhas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [buscou, setBuscou] = useState(false);
+
+  const navigate = useNavigate(); 
 
   const fetchCampanhas = async () => {
     setLoading(true);
     setError('');
+    setBuscou(true);
+
     try {
       const queryParams = new URLSearchParams();
-      if (searchTerm) {
-        queryParams.append('search', searchTerm);
-      }
-      if (filterTipoCadastro) {
-        queryParams.append('tipoCadastro', filterTipoCadastro);
-      }
-      if (filterTipoCampanha) {
-        queryParams.append('tipo', filterTipoCampanha);
-      }
+      if (searchTerm) queryParams.append('search', searchTerm);
+      if (filterTipoCadastro) queryParams.append('tipoCadastro', filterTipoCadastro);
+      if (filterTipoCampanha) queryParams.append('tipo', filterTipoCampanha);
 
       const response = await fetch(`http://localhost:3000/campanhas?${queryParams.toString()}`);
-      if (!response.ok) {
-        throw new Error('Erro ao buscar campanhas.');
-      }
+      if (!response.ok) throw new Error('Erro ao buscar campanhas.');
       const data = await response.json();
-      setCampanhas(data.campanhas || []);
+      setCampanhas(data || []);
     } catch (err) {
       setError(err.message || 'Erro na comunicação com o servidor.');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchCampanhas();
-  }, []); // Initial fetch when component mounts
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,6 +50,7 @@ const BuscarCampanha = () => {
   return (
     <section className="buscar-campanha-container">
       <h2>Buscar Campanhas</h2>
+
       <form onSubmit={handleSearch} className="search-form">
         <div className="form-group">
           <label htmlFor="searchTerm">Pesquisar por Título/Descrição/Local:</label>
@@ -109,19 +103,37 @@ const BuscarCampanha = () => {
       {loading && <p>Carregando campanhas...</p>}
       {error && <p className="error-message">{error}</p>}
 
-      <div className="campanhas-results-grid">
-        {campanhas.length > 0 ? (
-          campanhas.map((campanha) => (
-            <Item key={campanha.id} campanha={campanha} />
-          ))
-        ) : (
-          !loading && !error && <p>Nenhuma campanha encontrada.</p>
-        )}
-      </div>
+      {buscou && (
+        <div className="campanhas-results-grid">
+          {campanhas.length > 0 ? (
+            campanhas.map((campanha) => (
+              <div
+                key={campanha._id}
+                className="card-campanha"
+                onClick={() => navigate(`/campanha/${campanha._id}`)}
+                style={{ cursor: "pointer" }} 
+              >
+                {campanha.status === "concluida" && (
+                  <span className="selo-concluida">✅ Concluída</span>
+                )}
+                <img
+                  src={`http://localhost:3000/uploads/${campanha.imagem}`}
+                  alt={campanha.titulo}
+                  className="card-imagem"
+                />
+                <div className="card-texto">
+                  <h3 className="card-titulo">{campanha.titulo}</h3>
+                  <p className="card-sobre">{campanha.descricao?.slice(0, 100)}...</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            !loading && !error && <p>Nenhuma campanha encontrada.</p>
+          )}
+        </div>
+      )}
     </section>
   );
 };
 
 export default BuscarCampanha;
-
-

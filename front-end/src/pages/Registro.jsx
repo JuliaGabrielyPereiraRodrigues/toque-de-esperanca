@@ -6,7 +6,8 @@ const Registro = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [accountType, setAccountType] = useState("ONG");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -16,13 +17,19 @@ const Registro = () => {
     e.preventDefault();
     setErro("");
     setSucesso("");
+
+    if (senha !== confirmarSenha) {
+      setErro("As senhas não coincidem.");
+      return;
+    }
+
     setCarregando(true);
 
     try {
       const response = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password: senha, accountType }),
+        body: JSON.stringify({ name, email, password: senha }),
       });
 
       const data = await response.json();
@@ -32,7 +39,7 @@ const Registro = () => {
         setName("");
         setEmail("");
         setSenha("");
-        setAccountType("ONG");
+        setConfirmarSenha("");
         setTimeout(() => {
           navigate("/login");
         }, 2000);
@@ -75,7 +82,7 @@ const Registro = () => {
 
         <label className="registro-label">Senha</label>
         <input
-          type="password"
+          type={mostrarSenha ? "text" : "password"}
           placeholder="Sua senha"
           className="registro-input"
           value={senha}
@@ -84,17 +91,29 @@ const Registro = () => {
           disabled={carregando}
         />
 
-        <label className="registro-label">Tipo de Conta</label>
-        <select
+        <label className="registro-label">Confirmar Senha</label>
+        <input
+          type={mostrarSenha ? "text" : "password"}
+          placeholder="Confirme sua senha"
           className="registro-input"
-          value={accountType}
-          onChange={(e) => setAccountType(e.target.value)}
+          value={confirmarSenha}
+          onChange={(e) => setConfirmarSenha(e.target.value)}
           required
           disabled={carregando}
-        >
-          <option value="ONG">ONG</option>
-          <option value="Doador">Doador</option>
-        </select>
+        />
+
+        {/* ✅ Somente essa opção controla visibilidade da senha */}
+        <div style={{ margin: "10px 0", fontSize: "0.9rem" }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={mostrarSenha}
+              onChange={() => setMostrarSenha(!mostrarSenha)}
+              disabled={carregando}
+            />
+            &nbsp;Mostrar senha
+          </label>
+        </div>
 
         <button type="submit" className="registro-button" disabled={carregando}>
           {carregando ? "Registrando..." : "Registrar"}

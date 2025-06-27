@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,10 +26,13 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Salvando dados no localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("nomeUsuario", data.user.name);
         localStorage.setItem("emailUsuario", data.user.email);
-        
+        localStorage.setItem("usuarioLogado", JSON.stringify(true)); // Correção essencial
+
+        // Redireciona após login
         window.location.href = "/";
       } else {
         setErro(data.message || "Erro ao fazer login");
@@ -50,7 +53,6 @@ const Login = () => {
         <input
           type="email"
           id="email"
-          name="email"
           placeholder="Seu email"
           className="login-input"
           value={email}
@@ -61,9 +63,8 @@ const Login = () => {
 
         <label htmlFor="senha" className="login-label">Senha</label>
         <input
-          type="password"
+          type={mostrarSenha ? "text" : "password"}
           id="senha"
-          name="senha"
           placeholder="Sua senha"
           className="login-input"
           value={senha}
@@ -71,6 +72,18 @@ const Login = () => {
           required
           disabled={carregando}
         />
+
+        <div style={{ margin: "10px 0", fontSize: "0.9rem" }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={mostrarSenha}
+              onChange={() => setMostrarSenha(!mostrarSenha)}
+              disabled={carregando}
+            />
+            &nbsp;Mostrar senha
+          </label>
+        </div>
 
         <button type="submit" className="login-button" disabled={carregando}>
           {carregando ? "Entrando..." : "Entrar"}
