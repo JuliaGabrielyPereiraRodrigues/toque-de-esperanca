@@ -1,12 +1,19 @@
 import { Router } from "express";
 import multer from "multer";
 import Campanha from "./model.js";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
+const uploadPath = path.resolve("uploads");
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -183,6 +190,5 @@ router.put("/:id", upload.single("imagem"), async (req, res) => {
     res.status(500).json({ erro: "Erro ao atualizar campanha." });
   }
 });
-
 
 export default router;

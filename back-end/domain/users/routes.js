@@ -6,7 +6,6 @@ import { authMiddleware } from "../../middleware/auth.js";
 
 const router = Router();
 
-// Rota protegida para perfil
 router.get("/perfil", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
@@ -23,7 +22,6 @@ router.get("/perfil", authMiddleware, async (req, res) => {
   }
 });
 
-// Rota pública para listar usuários com filtro
 router.get("/users", async (req, res) => {
   try {
     const {
@@ -59,7 +57,6 @@ router.get("/users", async (req, res) => {
   }
 });
 
-// Rota de cadastro
 router.post("/users", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -92,7 +89,6 @@ router.post("/users", async (req, res) => {
   }
 });
 
-// Rota de login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -127,6 +123,16 @@ router.post("/login", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Erro no login", error: error.message });
+  }
+});
+
+router.get("/usuarios/email/:email", async (req, res) => {
+  try {
+    const usuario = await User.findOne({ email: req.params.email });
+    if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
+    res.json({ nome: usuario.name }); 
+  } catch (err) {
+    res.status(500).json({ erro: "Erro ao buscar usuário" });
   }
 });
 
