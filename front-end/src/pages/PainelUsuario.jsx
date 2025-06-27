@@ -1,0 +1,161 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./PainelUsuario.css";
+
+const PainelUsuario = () => {
+  const [campanhas, setCampanhas] = useState([]);
+  const [conversas, setConversas] = useState([]);
+  const [notificacoesRecentes, setNotificacoesRecentes] = useState([]);
+  const [mostrarCampanhas, setMostrarCampanhas] = useState(false);
+  const [nomesUsuarios, setNomesUsuarios] = useState({});
+
+  const emailUsuario = localStorage.getItem("emailUsuario");
+  const nomeUsuario = localStorage.getItem("nomeUsuario");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("http://localhost:3000/campanhas")
+      .then((res) => res.json())
+      .then((data) => {
+        const minhas = data.filter((c) => c.criador === emailUsuario);
+        setCampanhas(minhas);
+      });
+
+    carregarConversas();
+  }, []);
+
+  const carregarConversas = async () => {
+    try {
+      const resConversas = await fetch(`http://localhost:3000/chat/por-criador/${emailUsuario}`);
+      const dataConversas = await resConversas.json();
+      setConversas(dataConversas);
+
+      const resNotificacoes = await fetch(`http://localhost:3000/chat/notificacoes/${emailUsuario}`);
+      const dataNotificacoes = await resNotificacoes.json();
+      setNotificacoesRecentes(dataNotificacoes);
+
+      const emails = [...new Set([...dataConversas, ...dataNotificacoes].map((m) => m.remetente))];
+      const nomes = {};
+      await Promise.all(
+        emails.map(async (email) => {
+          try {
+            const res = await fetch(`http://localhost:3000/usuarios/email/${email}`);
+            const data = await res.json();
+            nomes[email] = data.nome || email;
+          } catch {
+            nomes[email] = email;
+          }
+        })
+      );
+      setNomesUsuarios(nomes);
+    } catch (error) {
+      console.error("Erro ao carregar conversas:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
+  const responderMensagem = async (msg) => {
+    try {
+      await fetch("http://localhost:3000/chat/marcar-como-lida", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          campanhaId: msg.campanhaId,
+          remetente: msg.remetente,
+          destinatario: emailUsuario,
+        }),
+      });
+
+      setNotificacoesRecentes((prev) =>
+        prev.filter((m) => m._idMensagem !== msg._idMensagem)
+      );
+
+      navigate(`/chat?campanha=${msg.campanhaId}&com=${msg.remetente}`);
+    } catch (error) {
+      console.error("Erro ao marcar mensagens como lidas:", error);
+    }
+  };
+
+  return (
+    <div className="painel-usuario">
+      <section className="painel-info">
+        <div className="painel-topo">
+          <div>
+            <h2>Bem-vindo, {nomeUsuario}!</h2>
+            <p>Email: {emailUsuario}</p>
+            <p>Campanhas criadas: {campanhas.length}</p>
+            <p>Mensagens recebidas: {conversas.length}</p>
+          </div>
+          <button className="btn-logout" onClick={handleLogout} title="Sair da conta">
+            Sair
+          </button>
+        </div>
+      </section>
+
+      {notificacoesRecentes.length > 0 && (
+        <section className="notificacoes">
+          <h3>🔔 Novas mensagens</h3>
+          {notificacoesRecentes.map((msg, i) => (
+            <div key={i} className="card-notificacao">
+              <p>
+                <strong>{nomesUsuarios[msg.remetente] || msg.remetente}</strong>: {msg.conteudo}
+              </p>
+              <p><small>{new Date(msg.dataEnvio).toLocaleString()}</small></p>
+              <button onClick={() => responderMensagem(msg)}>
+                Responder
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
+
+      <section className="minhas-campanhas">
+        <h3 onClick={() => setMostrarCampanhas(!mostrarCampanhas)} style={{ cursor: "pointer" }}>
+          Minhas Campanhas {mostrarCampanhas ? "▲" : "▼"}
+        </h3>
+        {mostrarCampanhas && (
+          <>
+            {campanhas.length === 0 ? (
+              <p>Você ainda não criou nenhuma campanha.</p>
+            ) : (
+              campanhas.map((c) => (
+                <div key={c._id} className="card">
+                  <h4>{c.titulo}</h4>
+                  <p>{c.descricao}</p>
+                </div>
+              ))
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="historico-mensagens">
+        <h3>Histórico de Conversas</h3>
+        {conversas.length === 0 ? (
+          <p>Você ainda não tem mensagens.</p>
+        ) : (
+          [...new Map(
+            conversas
+              .filter((msg) => msg.remetente !== emailUsuario)
+              .map((msg) => [`${msg.remetente}-${msg.campanhaId}`, msg])
+          ).values()].map((msg, i) => (
+            <div key={i} className="card">
+              <p><strong>Usuário:</strong> {nomesUsuarios[msg.remetente] || msg.remetente}</p>
+              <button onClick={() => responderMensagem(msg)}>
+                Ver conversa
+              </button>
+            </div>
+          ))
+        )}
+      </section>
+    </div>
+  );
+};
+
+export default PainelUsuario;

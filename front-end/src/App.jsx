@@ -9,7 +9,8 @@ import CriarCampanha from "./pages/CriarCampanha";
 import AcessoNegado from "./pages/AcessoNegado";
 import Sobre from "./pages/Sobre";
 import DetalhesCampanha from "./pages/DetalhesCampanha";
-//import Chat from "./pages/Chat";
+import Chat from "./pages/Chat";
+import PainelUsuario from "./pages/PainelUsuario";
 import RotaPrivada from "./components/RotaPrivada";
 
 function App() {
@@ -32,14 +33,22 @@ function App() {
         <Route path="/acesso-negado" element={<AcessoNegado />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/campanha/:id" element={<DetalhesCampanha />} />
-        {/* <Route
-          // path="/chat/:campanhaId"
-          // element={
-          //   <RotaPrivada>
-          //     <Chat />
-          //   </RotaPrivada>
+        <Route
+          path="/chat"
+          element={
+            <RotaPrivada>
+              <Chat />
+            </RotaPrivada>
           }
-        /> */}
+        />
+        <Route
+          path="/painel"
+          element={
+            <RotaPrivada>
+              <PainelUsuario />
+            </RotaPrivada>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

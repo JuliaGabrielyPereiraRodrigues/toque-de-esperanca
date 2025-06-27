@@ -31,12 +31,14 @@ const DetalhesCampanha = () => {
             local: data.local,
             tipo: data.tipo,
             meta: data.meta || "",
-            dataInicio: data.dataInicio?.split("T")[0] || "",
-            dataFim: data.dataFim?.split("T")[0] || "",
+            dataInicio: data.dataInicio ? data.dataInicio.split("T")[0] : "",
+            dataFim: data.dataFim ? data.dataFim.split("T")[0] : "",
             contato: data.contato || "",
             link: data.link || "",
           });
-        } else setErro("Campanha não encontrada.");
+        } else {
+          setErro("Campanha não encontrada.");
+        }
       })
       .catch(() => setErro("Erro ao buscar campanha."));
 
@@ -81,7 +83,7 @@ const DetalhesCampanha = () => {
 
   const enviarComentario = async () => {
     const autor = nomeUsuario || emailUsuario;
-    if (!autor || !novoComentario.trim()) {
+    if (!emailUsuario || !autor || !novoComentario.trim()) {
       alert("Você precisa estar logado e preencher o comentário.");
       return;
     }
@@ -251,8 +253,8 @@ const DetalhesCampanha = () => {
         </div>
       )}
 
-      {emailUsuario && !ehCriador && (
-        <button onClick={() => navigate(`/chat?campanha=${id}`)} style={{ marginTop: "10px" }}>
+      {emailUsuario && !ehCriador && campanha.criador && (
+        <button onClick={() => navigate(`/chat?campanha=${id}&com=${campanha.criador}`)} style={{ marginTop: "10px" }}>
           Conversar com o organizador
         </button>
       )}
