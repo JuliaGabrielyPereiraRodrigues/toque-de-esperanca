@@ -4,19 +4,18 @@ import cors from "cors";
 import path from "path";
 import connectDb from "./config/db.js";
 
-// Rotas
 import UserRoutes from "./domain/users/routes.js";
 import campanhasRoutes from "./domain/campanhas/routes.js";
-import comentariosRoutes from "./domain/comentarios/routes.js"
+import comentariosRoutes from "./domain/comentarios/routes.js";
+// import mensagemRoutes from "./domain/mensagem/routes.js"; 
 
 const app = express();
 const { PORT } = process.env;
 
-// Middleware CORS
 app.use(
   cors({
     origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PATCH"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -28,7 +27,8 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use(UserRoutes);
 app.use("/campanhas", campanhasRoutes);
-app.use("/comentarios", comentariosRoutes); 
+app.use("/comentarios", comentariosRoutes);
+// app.use("/mensagens", mensagemRoutes); 
 
 connectDb()
   .then(() => {
@@ -39,3 +39,4 @@ connectDb()
   .catch((err) => {
     console.error("❌ Erro ao conectar ao banco:", err.message);
   });
+
